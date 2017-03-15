@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        #all{
+            width: 500px;
+            height: 200px;
+            padding: 6px;
+            border: 1px solid #cccccc;
+            margin: 100px auto;
+            position: relative;
+        }
+        #screen{
+            width: 500px;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+        #screen #ul{
+            list-style: none;
+            width: 3000px;
+            height: 200px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            overflow: hidden;
+        }
+        #screen #ul li{
+            width: 500px;
+            height: 200px;
+            overflow: hidden;
+            float: left;
+            border: 0;
+            background-color: bisque;
+        }
+        #all ol{
+            position: absolute;
+            left: 50%;
+            bottom: 10px;
+            line-height: 20px;
+            margin-left: 0;
+            list-style: none;
+        }
+        #all ol li{
+            float: left;
+            width: 20px;
+            height: 20px;
+            border: 1px solid #cccccc;
+            background-color: rgba(255,255,255,0.4);
+            border-radius: 10px;
+            text-align: center;
+            margin-right: 10px;
+        }
+        #all li.current{
+            background-color: rgba(255,255,0,0.4);
+        }
+    </style>
+    <script type="text/javascript">
+        //相同时间到达的匀速移动
+        function animate(obj,target){
+            clearInterval(obj.timer);
+            var distance = Math.abs(obj.offsetLeft)-Math.abs(target);
+            var speed = distance/50;
+            obj.timer =setInterval(function(){
+                var nowposition =obj.offsetLeft -target;
+                console.log(speed);
+                obj.style.left = obj.offsetLeft + speed +"px";
+                if(Math.abs(nowposition) <= Math.abs(speed))
+                {
+                    clearInterval(obj.timer);
+                    obj.style.left = target + "px";
+                }
+            },10)
+        }
+        window.onload = function(){
+            var box = document.getElementById("all");
+            var ul = document.getElementById("ul");
+            //添加第一张图片到最后节点，方便自动播放时动画衔接
+            var ullis = ul.children;
+            ul.appendChild(ul.children[0].cloneNode(true));
+            console.log(ul.offsetLeft);
+
+            //根据图片数量添加序号
+            var ol =document.createElement("ol");
+            box.appendChild(ol);
+            for(var i=0; i<ullis.length-1; i++)
+            {
+                var li = document.createElement("li");
+                li.innerHTML = i +1;
+                ol.appendChild(li);
+            }
+            var olLis = ol.children;
+            ol.style.marginLeft = -(30*olLis.length - 10)/2 +"px";
+            olLis[0].className = "current";
+
+            //鼠标移动到相应序号时上启动动画
+            for(var i=0; i<olLis.length ; i++)
+            {
+                olLis[i].index = i;
+                olLis[i].onmouseover = function(){
+                    for(var j=0;j<olLis.length;j++)
+                    {
+                        olLis[j].className = "";
+                    }
+                    this.className = "current";
+                    console.log("ulleft:"+ul.offsetLeft);
+                    console.log("index:"+this.index);
+                    animate(ul, -this.index*500);
+                    square = key = this.index;
+                }
+            }
+
+            //鼠标未进入时自动播放动画
+            var timer = null;
+            var key = 0;
+            var square = 0;
+            timer = setInterval(autoplay,2500);
+            function autoplay(){
+                key++;
+                if(key > ullis.length -1)
+                {
+                    ul.style.left = 0;
+                    key = 1;
+                }
+                animate(ul,-key*500)
+
+                square++;
+                if(square > olLis.length - 1)
+                {
+                    square = 0;
+                }
+                for(var i=0;i<olLis.length;i++)
+                {
+                    olLis[i].className = "";
+                }
+                olLis[square].className = "current";
+            }
+            box.onmouseover = function() {
+                clearInterval(timer);
+            }
+            box.onmouseout = function() {
+                timer = setInterval(autoplay,2500);
+            }
+
+        }
+    </script>
+</head>
+<body>
+    <div id="all">
+        <div id="screen">
+            <ul id="ul">
+                <li><img src="images/1.jpg" alt=""></li>
+                <li><img src="images/2.jpg" alt=""></li>
+                <li><img src="images/3.jpg" alt=""></li>
+                <li><img src="images/4.jpg" alt=""></li>
+                <li><img src="images/5.jpg" alt=""></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
